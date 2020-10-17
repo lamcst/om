@@ -1,0 +1,22 @@
+{
+	"version": "0.2.0",
+	"configurations": [
+		{
+			"name": "Node Order",
+			"type": "node",
+			"request": "launch",
+			"args": ["${workspaceRoot}/src/orderApp.ts"],
+			"runtimeArgs": ["-r", "ts-node/register"],
+			"cwd": "${workspaceRoot}",
+			"protocol": "inspector",
+			"internalConsoleOptions": "openOnSessionStart",
+			"env": {
+        "TS_NODE_IGNORE": "false",
+        "TYPEORM_ENTITIES":"src/entity/**/*.ts|",
+        "TYPEORM_MIGRATIONS":"src/migration/**/*.ts|",
+        "TYPEORM_SUBSCRIBERS":"src/subscriber/**/*.ts|",
+        "TYPEORM_CLI":"{\"migrationsDir\": \"src/migration\",\"migrationsDir\": \"src/migration\",\"subscribersDir\": \"src/subscriber\"}"
+			}
+		}
+	]
+}

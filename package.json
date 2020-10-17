@@ -1,0 +1,48 @@
+{
+  "name": "om",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "npx tsc",
+    "start-order-dev": "npx tsc && node build/orderApp.js",
+    "start-pay-dev": "npx tsc && node build/paymentApp.js",
+    "dc-dev-u": "docker-compose -f docker-compose-dev.yml up",
+    "dc-dev-d": "docker-compose -f docker-compose-dev.yml down",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lamcst/om.git"
+  },
+  "author": "Andy",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/lamcst/om/issues"
+  },
+  "homepage": "https://github.com/lamcst/om#readme",
+  "devDependencies": {
+    "@types/node": "^14.11.8",
+    "typescript": "^4.0.3",
+    "@typescript-eslint/eslint-plugin": "^2.14.0",
+    "@typescript-eslint/parser": "^2.14.0",
+    "eslint": "^6.8.0",
+    "eslint-config-standard": "^14.1.0",
+    "eslint-plugin-import": "^2.19.1",
+    "eslint-plugin-node": "^11.0.0",
+    "eslint-plugin-promise": "^4.2.1",
+    "eslint-plugin-standard": "^4.0.1"
+  },
+  "dependencies": {
+    "@types/express": "^4.17.8",
+    "amqplib": "^0.6.0",
+    "dotenv-parser": "0.0.5",
+    "express": "^4.17.1",
+    "lodash": "^4.17.20",
+    "mssql": "^6.2.3",
+    "mysql2": "^2.2.5",
+    "reflect-metadata": "^0.1.13",
+    "ts-node": "^9.0.0",
+    "typeorm": "^0.2.28"
+  }
+}
