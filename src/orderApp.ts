@@ -1,11 +1,14 @@
 import 'reflect-metadata'
 import { createConnection } from 'typeorm'
 import { Request, Response } from 'express'
+import { worker } from './lib/workQueue'
 import * as bodyParser from 'body-parser'
 import { Routes } from './routes'
+import { Order, OrderStatus } from './entity/Order'
 const express = require('express')
 import _ = require('lodash')
 import dotenv = require('dotenv-parser')
+
 dotenv.config()
 const CONNECTION_PREFIX = 'TYPEORM'
 const CONNECTION_SEPARATOR = '_'
@@ -47,5 +50,15 @@ createConnection(options).then(async connection => {
   // start express server
   app.listen(port)
 
+  const { RABBITMQ_CONNECTION_STRING, DELIVER_TASK_NAME } = process.env
+  worker(RABBITMQ_CONNECTION_STRING, DELIVER_TASK_NAME, (result:any) => {
+    const id = result.content.toString()
+    connection
+      .createQueryBuilder()
+      .update(Order)
+      .set({ status: OrderStatus.DELIVERED })
+      .where('id = :id', { id })
+      .execute()
+  })
   console.log(`Express server has started on port ${port}. Open http://localhost:${port}/orders to see results`)
 }).catch(error => console.log(error))
