@@ -9,7 +9,7 @@
     "start-pay-dev": "npx tsc && node build/paymentApp.js",
     "dc-dev-u": "docker-compose -f docker-compose-dev.yml up",
     "dc-dev-d": "docker-compose -f docker-compose-dev.yml down",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "npx jest"
   },
   "repository": {
     "type": "git",
@@ -23,7 +23,11 @@
   "homepage": "https://github.com/lamcst/om#readme",
   "devDependencies": {
     "@types/amqplib": "^0.5.14",
+    "@types/cors": "^2.8.8",
+    "@types/jest": "^26.0.14",
+    "@types/lodash": "^4.14.162",
     "@types/node": "^14.11.8",
+    "@types/supertest": "^2.0.10",
     "@typescript-eslint/eslint-plugin": "^2.14.0",
     "@typescript-eslint/parser": "^2.14.0",
     "eslint": "^6.8.0",
@@ -32,17 +36,21 @@
     "eslint-plugin-node": "^11.0.0",
     "eslint-plugin-promise": "^4.2.1",
     "eslint-plugin-standard": "^4.0.1",
+    "jest": "^26.5.3",
+    "ts-jest": "^26.4.1",
     "typescript": "^4.0.3"
   },
   "dependencies": {
     "@types/express": "^4.17.8",
     "amqplib": "^0.6.0",
+    "cors": "^2.8.5",
     "dotenv-parser": "0.0.5",
     "express": "^4.17.1",
     "lodash": "^4.17.20",
     "mssql": "^6.2.3",
     "mysql2": "^2.2.5",
     "reflect-metadata": "^0.1.13",
+    "supertest": "^5.0.0",
     "ts-node": "^9.0.0",
     "typeorm": "^0.2.28"
   }

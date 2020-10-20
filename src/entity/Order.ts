@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm'
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn } from 'typeorm'
 
 export enum OrderStatus {
   CREATED = 'CRE',
@@ -20,4 +20,7 @@ export class Order {
     default: OrderStatus.CREATED
   })
   status: OrderStatus;
+
+  @CreateDateColumn()
+  createTime: Date
 }

@@ -1,14 +1,24 @@
-import { getRepository } from 'typeorm'
+import { getRepository, Connection } from 'typeorm'
 import { NextFunction, Request, Response } from 'express'
 import { Order, OrderStatus } from '../entity/Order'
-import { task, timeOutTask, cancelTimeOutTask } from '../lib/workQueue'
-
+import { task, timeOutTask, cancelTimeOutTask, worker } from '../lib/workQueue'
+export const OrderWorker = (connection:Connection) => {
+  const { RABBITMQ_CONNECTION_STRING, DELIVER_TASK_NAME } = process.env
+  worker(RABBITMQ_CONNECTION_STRING, DELIVER_TASK_NAME, (result:any) => {
+    const id = result.content.toString()
+    connection
+      .createQueryBuilder()
+      .update(Order)
+      .set({ status: OrderStatus.DELIVERED })
+      .where('id = :id', { id })
+      .execute()
+  })
+}
 export class OrderControllers {
   private orderRepository = getRepository(Order);
 
   async all (request: Request, response: Response, next: NextFunction) {
-    console.log('all')
-    return this.orderRepository.find()
+    return this.orderRepository.find({ order: { createTime: 'DESC' } })
   }
 
   async create (request: Request, response: Response, next: NextFunction) {
@@ -20,10 +30,8 @@ export class OrderControllers {
       if (status === OrderStatus.CONFIRMED) {
         timeOutTask(RABBITMQ_CONNECTION_STRING, DELIVER_TASK_NAME, parseInt(DELIVERED_DELAY_SEC), msg.properties.correlationId, msg.properties.correlationId)
       }
-      this.orderRepository.findOne(msg.properties.correlationId).then((order) => {
-        this.orderRepository.update(order, {
-          status
-        })
+      this.orderRepository.update(msg.properties.correlationId, {
+        status
       })
     })
     return result
@@ -33,10 +41,11 @@ export class OrderControllers {
     const order = await this.orderRepository.findOne(request.params.id)
     if (order.status === OrderStatus.CONFIRMED) {
       const { RABBITMQ_CONNECTION_STRING, DELIVER_TASK_NAME } = process.env
-      await cancelTimeOutTask(RABBITMQ_CONNECTION_STRING, DELIVER_TASK_NAME, request.params.id)
+      cancelTimeOutTask(RABBITMQ_CONNECTION_STRING, DELIVER_TASK_NAME, request.params.id)
     }
-    const result = await this.orderRepository.update(order, {
-      status: OrderStatus.CANCELLED
+    const cancelledStatus = OrderStatus.CANCELLED
+    const result = await this.orderRepository.update(request.params.id, {
+      status: cancelledStatus
     })
     return result
   }

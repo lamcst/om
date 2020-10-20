@@ -1,36 +1,18 @@
 import 'reflect-metadata'
 import { createConnection } from 'typeorm'
 import { Request, Response } from 'express'
-import { worker } from './lib/workQueue'
 import * as bodyParser from 'body-parser'
 import { Routes } from './routes'
-import { Order, OrderStatus } from './entity/Order'
+import { OrderWorker } from './controller/OrderController'
+import getConnectionOptions from './lib/getConnectionOptions'
+import cors = require('cors')
 const express = require('express')
-import _ = require('lodash')
-import dotenv = require('dotenv-parser')
-
-dotenv.config()
-const CONNECTION_PREFIX = 'TYPEORM'
-const CONNECTION_SEPARATOR = '_'
-const keys = Object.keys(process.env)
-const options: any = keys.reduce((result, key) => {
-  const data = process.env[key]
-  const [prefix, ...optionArray] = key.split(CONNECTION_SEPARATOR)
-  if (prefix === CONNECTION_PREFIX) {
-    const keyCamelCased = _.camelCase(optionArray.join(CONNECTION_SEPARATOR))
-    return {
-      ...result,
-      [keyCamelCased]: data
-    }
-  }
-  return result
-}, {})
+const options = getConnectionOptions()
 const port = process.env.PORT
-createConnection(options).then(async connection => {
-  // create express app
+export const orderApp = () => {
   const app = express()
   app.use(bodyParser.json())
-
+  app.use(cors())
   // register express routes from defined application routes
   Routes.forEach(route => {
     console.log(route.method, route.route);
@@ -44,21 +26,11 @@ createConnection(options).then(async connection => {
     })
   })
 
-  // setup express app here
-  // ...
-
-  // start express server
+  return app
+}
+createConnection(options).then((connection) => {
+  const app = orderApp()
+  OrderWorker(connection)
   app.listen(port)
-
-  const { RABBITMQ_CONNECTION_STRING, DELIVER_TASK_NAME } = process.env
-  worker(RABBITMQ_CONNECTION_STRING, DELIVER_TASK_NAME, (result:any) => {
-    const id = result.content.toString()
-    connection
-      .createQueryBuilder()
-      .update(Order)
-      .set({ status: OrderStatus.DELIVERED })
-      .where('id = :id', { id })
-      .execute()
-  })
   console.log(`Express server has started on port ${port}. Open http://localhost:${port}/orders to see results`)
 }).catch(error => console.log(error))

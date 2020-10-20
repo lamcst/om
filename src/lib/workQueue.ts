@@ -8,8 +8,8 @@ export const cancelTimeOutTask = async (connectionString: string, taskName: stri
     connection = await amqp.connect(connectionString)
   }
   const channel = await connection.createChannel()
-  const result = await channel.purgeQueue(`${taskName}.${id}`)
-  return result
+
+  await channel.purgeQueue(`${taskName}.${id}`)
 }
 
 export const timeOutTask = async (connectionString: string, taskName: string, delaySec: number, id:string, message:string) => {
